@@ -1,0 +1,6 @@
+- WiFi: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
+- DHT11: https://www.arduino.cc/reference/en/libraries/simpledht/
+- MQTT: https://www.arduino.cc/reference/en/libraries/arduinomqtt/
+- Software restart: https://techtutorialsx.com/2017/12/29/esp8266-arduino-software-restart/
+  - ESP.restart();
+- Pinout: https://randomnerdtutorials.com/esp8266-pinout-reference-gpios/
