@@ -3,4 +3,5 @@
 - MQTT: https://www.arduino.cc/reference/en/libraries/arduinomqtt/
 - Software restart: https://techtutorialsx.com/2017/12/29/esp8266-arduino-software-restart/
   - ESP.restart();
-- Pinout: https://randomnerdtutorials.com/esp8266-pinout-reference-gpios/
+- Pinout: https://www.wemos.cc/en/latest/d1/d1_mini.html
+- Timers: https://www.arduino.cc/reference/en/libraries/arduino-timer/

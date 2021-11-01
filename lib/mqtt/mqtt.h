@@ -7,27 +7,11 @@
 #ifndef _MQTT_H_
 #define _MQTT_H_
 
-extern MqttClient *mqtt = NULL;
-extern WiFiClient network;
+void wifi_setup();
+void mqtt_setup();
+void mqtt_reconnect();
 
-// ============== Object to supply system functions ============================
-class System: public MqttClient::System {
-public:
-
-	unsigned long millis() const {
-		return ::millis();
-	}
-
-	void yield(void) {
-		::yield();
-	}
-};
-
-char mqtt_host[] = MQTT_HOST;
-char mqtt_clientid[] = MQTT_CLIENT_ID;
-char mqtt_user[] = MQTT_USER;
-char mqtt_pass[] = MQTT_PASS;
-
-void setupMqtt();
+void processMessage(MqttClient::MessageData& md);
+void publishMessageData(char *section, char *msg);
 
 #endif

@@ -1,31 +1,21 @@
 // Includes
 #include <Arduino.h>
+// #include <arduino-timer.h>
 #include "configuration.h"
 #include "utils.h"
 #include "mqtt.h"
 
-void setup() {
-  char ssid[] = WIFI_SSID;
-  char pass[] = WIFI_PASS;
 
-  char buffer[40];
+void setup() {
+  Serial.begin(9600);
 
   // PIN mode
   pinMode(LED_BUILTIN, OUTPUT);
 
   digitalWrite(LED_BUILTIN, HIGH);
 
-  // Connect to Wifi
-  WiFi.begin(ssid, pass);
-  while ( WiFi.status() != WL_CONNECTED) {
-    delay(TICK_LENGTH_MS);
-  }
-  // IPAddress ip = WiFi.localIP();
-
-  // Connect to MQTT Broker
-  // if (!mqttclient.connected()) {
-  //   mqttclient.connect();
-  // }
+  wifi_setup();
+  mqtt_setup();
 
   digitalWrite(LED_BUILTIN, LOW);
 }
@@ -35,10 +25,11 @@ void loop() {
   // static float temp = 0;
   // static float hum = 0;
 
-  // Reboot board if MQTT or WIFI is not connected
-  if (!mqtt->isConnected() || WiFi.status() != WL_CONNECTED) {
+  // Reboot board if WIFI is not connected
+  if (WiFi.status() != WL_CONNECTED) {
     ESP.restart();
   }
+  mqtt_reconnect();
 
   // Update LCD
   if (! (tick_counter % (tick_1s*5))){
@@ -49,9 +40,10 @@ void loop() {
 
   // Send MQTT message
   if (! (tick_counter % (tick_1s*5))){
-  // TODO: send message every minute
-  //if (! (tick_counter % tick_1m)){
-    // topicSensors.publish("test");
+    char section[] = "section";
+    char msg[] = "hola";
+    publishMessageData(section, msg);
+    Serial.println("MQTT message sent");
   }
 
   if (! (tick_counter % tick_1s)){
