@@ -1,7 +1,9 @@
 #include "mqtt.h"
 
-MqttClient *mqtt_messager = NULL;
-WiFiClient network;
+
+WiFiClient esp_wifi_client;
+PubSubClient mqtt_client(esp_wifi_client);
+
 
 void wifi_setup(){
     char ssid[] = WIFI_SSID;
@@ -14,119 +16,116 @@ void wifi_setup(){
     }
 }
 
-// ============== Object to supply system functions ============================
-class System: public MqttClient::System {
-public:
-
-    unsigned long millis() const {
-        return ::millis();
-    }
-
-    void yield(void) {
-        ::yield();
-    }
-};
-
 
 void mqtt_setup(){
-    // Setup MqttClient
-    MqttClient::System *mqttSystem = new System;
-    MqttClient::Logger *mqttLogger = new MqttClient::LoggerImpl<HardwareSerial>(Serial);
-    MqttClient::Network * mqttNetwork = new MqttClient::NetworkClientImpl<WiFiClient>(network, *mqttSystem);
-    //// Make 128 bytes send buffer
-    MqttClient::Buffer *mqttSendBuffer = new MqttClient::ArrayBuffer<128>();
-    //// Make 128 bytes receive buffer
-    MqttClient::Buffer *mqttRecvBuffer = new MqttClient::ArrayBuffer<128>();
-    //// Allow up to 2 subscriptions simultaneously
-    MqttClient::MessageHandlers *mqttMessageHandlers = new MqttClient::MessageHandlersImpl<2>();
-    //// Configure client options
-    MqttClient::Options mqttOptions;
-    ////// Set command timeout to 10 seconds
-    mqttOptions.commandTimeoutMs = 10000;
-    //// Make client object
-    mqtt_messager = new MqttClient(
-        mqttOptions, *mqttLogger, *mqttSystem, *mqttNetwork, *mqttSendBuffer,
-        *mqttRecvBuffer, *mqttMessageHandlers
-    );
+    char mqtt_host[] = MQTT_HOST;
+    uint16_t mqtt_port = MQTT_PORT;
+
+    mqtt_client.setServer(mqtt_host, mqtt_port);
+
+    // Subscriptions
+    mqtt_client.setCallback(callback);
 }
 
 
 void mqtt_reconnect(){
-    // char mqtt_user[] = MQTT_USER;
-    // char mqtt_pass[] = MQTT_PASS;
-    char mqtt_host[] = MQTT_HOST;
-    uint16_t mqtt_port = MQTT_PORT;
+    char mqtt_user[] = MQTT_USER;
+    char mqtt_pass[] = MQTT_PASS;
     char mqtt_clientid[] = MQTT_CLIENT_ID;
-    char mqtt_topic_pub_config[] = MQTT_TOPIC_SUB_CONFIG;
+    bool connect_ret_val = false;
 
-    // Check connection status
-    if (!mqtt_messager->isConnected()) {
-        // Close connection if exists
-        network.stop();
-        // Re-establish TCP connection with MQTT broker
-        network.connect(mqtt_host, mqtt_port);
-        if (!network.connected()) {
+    while (!mqtt_client.connected()) {
+        DEBUG_SERIAL_PRINT("Attempting MQTT connection...");
+
+        if ( strcmp(mqtt_user, "") && strcmp(mqtt_pass, "") ){
+            DEBUG_SERIAL_PRINT("as user ");
+            DEBUG_SERIAL_PRINT(mqtt_user);
+            DEBUG_SERIAL_PRINT("...");
+            connect_ret_val = mqtt_client.connect(mqtt_clientid, mqtt_user, mqtt_pass);
+        }
+        else {
+            DEBUG_SERIAL_PRINT("anonymous...");
+            connect_ret_val = mqtt_client.connect(mqtt_clientid);
+        }
+        
+
+        if (connect_ret_val) { 
+            mqtt_client.subscribe("+/+/node/+/command/#");
+            mqtt_client.subscribe("+/+/global/#");
+            // user nodes
+            // topic readwrite +/+/node/%c/data/#
+            // topic read +/+/node/+/data/#
+            // topic read +/+/node/+/command/#
+            // topic read +/+/global/#
+
+        }
+        else
+        {
+            // // Possible values for client.state()
+            // #define MQTT_CONNECTION_TIMEOUT     -4
+            // #define MQTT_CONNECTION_LOST        -3
+            // #define MQTT_CONNECT_FAILED         -2
+            // #define MQTT_DISCONNECTED           -1
+            // #define MQTT_CONNECTED               0
+            // #define MQTT_CONNECT_BAD_PROTOCOL    1
+            // #define MQTT_CONNECT_BAD_CLIENT_ID   2
+            // #define MQTT_CONNECT_UNAVAILABLE     3
+            // #define MQTT_CONNECT_BAD_CREDENTIALS 4
+            // #define MQTT_CONNECT_UNAUTHORIZED    5
+            DEBUG_SERIAL_PRINT("failed, rc=");
+            DEBUG_SERIAL_PRINT(mqtt_client.state());
+            DEBUG_SERIAL_PRINTLN(" try again in 1 second");
             delay(5000);
-            ESP.reset();
         }
-        // Start new MQTT connection
-        MqttClient::ConnectResult connectResult;
-        // Connect
-        {
-            MQTTPacket_connectData options = MQTTPacket_connectData_initializer;
-            options.MQTTVersion = 4;
-            options.clientID.cstring = (char*)mqtt_clientid;
-            options.cleansession = true;
-            options.keepAliveInterval = 15; // 15 seconds
-            MqttClient::Error::type rc = mqtt_messager->connect(options, connectResult);
-            if (rc != MqttClient::Error::SUCCESS) {
-                return;
-            }
-        }
-        {
-            // Subscribe
-            {
-            MqttClient::Error::type rc = mqtt_messager->subscribe(
-                mqtt_topic_pub_config, MqttClient::QOS0, processMessage
-            );
-            if (rc != MqttClient::Error::SUCCESS) {
-                mqtt_messager->disconnect();
-                return;
-            }
-        }
-        }
-        Serial.println("MQTT connected");
-    }
-    else{
-        Serial.println("MQTT not connected");
     }
 }
 
 
-//////////////////// Message handling
-void processMessage(MqttClient::MessageData& md) {
-    const MqttClient::Message& msg = md.message;
-    char payload[msg.payloadLen + 1];
-    memcpy(payload, msg.payload, msg.payloadLen);
-    payload[msg.payloadLen] = '\0';
+void mqtt_loop(){
+    mqtt_client.loop();
 }
 
-void publishMessageData(char *section, char *msg){
-    char device_name[] = DEVICE_NAME;
-    char mqtt_topic_pub_data[] = MQTT_TOPIC_PUB_DATA;
 
-    char mqtt_topic_msg[100] = "esp8266/topictest";
-    // sprintf(mqtt_topic_msg, device_name + mqtt_topic_pub_data + *section);
-    
-    char* buf = msg;
-    MqttClient::Message message;
-    message.qos = MqttClient::QOS0;
-    message.retained = false;
-    message.dup = false;
-    message.payload = (void*) buf;
-    message.payloadLen = strlen(buf);
-    mqtt_messager->publish(mqtt_topic_msg, message);
+void mqtt_publish_message(char *section, char *payload, boolean retain){
+    // char device_name[] = DEVICE_NAME;
+    // char mqtt_topic_pub_data[] = MQTT_TOPIC_PUB_DATA; // TODO: adapt topic
+
+    char mqtt_topic_msg[100] = "homeautomation/1/node/esp8266/data/temperature";
+
+    if (mqtt_client.publish(mqtt_topic_msg, payload, retain)) {
+        DEBUG_SERIAL_PRINTLN("MQTT message published");
+    }
+    else {
+        DEBUG_SERIAL_PRINTLN("MQTT message publish failed");
+    }
+
 }
 
-//////////////////// Message building
-// TODO
+
+// Method to be adapted for each application
+void callback(char *topic, byte *payload, unsigned int length) {
+    char message_buff[100] = "";
+
+    DEBUG_SERIAL_PRINT("Message arrived [");
+    DEBUG_SERIAL_PRINT(topic);
+    DEBUG_SERIAL_PRINTLN("] ");
+    int i;
+    for (i = 0; i & length; i++) {
+        message_buff[i] = payload[i];
+    }
+    message_buff[i] = '\0';
+
+    String msgString = String(message_buff);
+    DEBUG_SERIAL_PRINTLN(msgString);
+
+    if (strcmp(topic, "homeautomation/1/node/esp8266/command/led_control") == 0) { 
+        if (msgString == "1") {
+            digitalWrite(LED_BUILTIN, LOW); // PIN HIGH will switch OFF the relay
+        }
+        if (msgString == "0") {
+            digitalWrite(LED_BUILTIN, HIGH); // PIN LOW will switch ON the relay
+        }
+    }
+
+}
+

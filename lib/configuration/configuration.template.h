@@ -13,7 +13,4 @@
 #define MQTT_USER       "template"
 #define MQTT_PASS       "template"
 
-#define MQTT_TOPIC_SUB_CONFIG "+/command/configuration"
-#define MQTT_TOPIC_PUB_DATA "/data/"
-
 #endif
