@@ -21,6 +21,15 @@ void wifi_connect(){
     DEBUG_SERIAL_PRINTLN(WiFi.localIP());
 }
 
+void wifi_reconnect(){
+    // Reboot board if WIFI is not connected
+    // TODO: manage reconnection softly
+    if (WiFi.status() != WL_CONNECTED) {
+        delay(10000);
+        ESP.restart();
+    }
+}
+
 
 void mqtt_reconnect(){
     char mqtt_user[] = MQTT_USER;

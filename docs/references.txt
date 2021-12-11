@@ -1,5 +1,5 @@
 - WiFi: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
-- DHT11: https://www.arduino.cc/reference/en/libraries/simpledht/
+- DHT11: https://randomnerdtutorials.com/esp8266-dht11dht22-temperature-and-humidity-web-server-with-arduino-ide/
 - MQTT: https://www.arduino.cc/reference/en/libraries/pubsubclient/
   - Example: https://www.survivingwithandroid.com/esp8266-mqtt-client-publish-subscribe/
 - Software restart: https://techtutorialsx.com/2017/12/29/esp8266-arduino-software-restart/

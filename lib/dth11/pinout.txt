@@ -1,0 +1,19 @@
+# DHT11 PINT PUT
+## RAW sensor:
+
+Terminals looking downwards, from left to right:
+1. VCC
+2. I/O
+3. NC
+4. GND
+
+## PCB sensor:
+
+REF: https://programarfacil.com/blog/arduino-blog/sensor-dht11-temperatura-humedad-arduino/
+
+- CAUTION: There are different PCBs on the market. The following description is the one used for the project.
+
+Terminals looking downwards, from left to right:
+1. DATA
+2. VCC
+3. GND

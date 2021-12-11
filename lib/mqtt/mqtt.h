@@ -12,7 +12,7 @@
 #define MQTT_RETRY_MS 5000
 
 void wifi_connect();
-// void wifi_reconnect(); // TODO
+void wifi_reconnect();
 
 void mqtt_reconnect();
 void mqtt_loop();
