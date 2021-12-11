@@ -8,10 +8,9 @@
 #ifndef _MQTT_H_
 #define _MQTT_H_
 
-void wifi_setup();
+void wifi_connect();
 // void wifi_reconnect(); // TODO
 
-void mqtt_setup();
 void mqtt_reconnect();
 void mqtt_loop();
 

@@ -21,20 +21,21 @@ bool function_to_call(void *) {
 }
 
 
-void setup() {
+void setup() {  
   DEBUG_SERIAL_SETUP(9600);
+  DEBUG_SERIAL_PRINTLN("Setting up device...");
 
   // Network setup
-  wifi_setup();
-  mqtt_setup();
+  wifi_connect();
 
   // PIN mode
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 
   // Timer functions
-  timer.every(5000, function_to_call);
+  timer.every(20000, function_to_call);
 
+  DEBUG_SERIAL_PRINTLN("Running main loop...");
 }
 
 void loop() {
@@ -46,6 +47,7 @@ void loop() {
   // Reboot board if WIFI is not connected
   // TODO: replace with wifi_reconnect();
   if (WiFi.status() != WL_CONNECTED) {
+    delay(10000);
     ESP.restart();
   }
   mqtt_reconnect();

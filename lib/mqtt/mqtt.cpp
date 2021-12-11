@@ -1,30 +1,25 @@
 #include "mqtt.h"
 
+#define WIFI_RETRY_MS 5000
+#define MQTT_RETRY_MS 5000
 
+IPAddress mqtt_server(MQTT_HOST_OCT_1,MQTT_HOST_OCT_2,
+                      MQTT_HOST_OCT_3,MQTT_HOST_OCT_4);
 WiFiClient esp_wifi_client;
-PubSubClient mqtt_client(esp_wifi_client);
+PubSubClient mqtt_client(mqtt_server, MQTT_PORT, callback, esp_wifi_client);
 
 
-void wifi_setup(){
+void wifi_connect(){
     char ssid[] = WIFI_SSID;
     char pass[] = WIFI_PASS;
 
     // Connect to Wifi
     WiFi.begin(ssid, pass);
     while ( WiFi.status() != WL_CONNECTED) {
-        delay(1000);
+        delay(WIFI_RETRY_MS);
     }
-}
-
-
-void mqtt_setup(){
-    char mqtt_host[] = MQTT_HOST;
-    uint16_t mqtt_port = MQTT_PORT;
-
-    mqtt_client.setServer(mqtt_host, mqtt_port);
-
-    // Subscriptions
-    mqtt_client.setCallback(callback);
+    DEBUG_SERIAL_PRINT("Local IP address: ");
+    DEBUG_SERIAL_PRINTLN(WiFi.localIP());
 }
 
 
@@ -36,6 +31,9 @@ void mqtt_reconnect(){
 
     while (!mqtt_client.connected()) {
         DEBUG_SERIAL_PRINT("Attempting MQTT connection...");
+        DEBUG_SERIAL_PRINT("as clientid ");
+        DEBUG_SERIAL_PRINT(mqtt_clientid);
+        DEBUG_SERIAL_PRINT("...");
 
         if ( strcmp(mqtt_user, "") && strcmp(mqtt_pass, "") ){
             DEBUG_SERIAL_PRINT("as user ");
@@ -52,30 +50,13 @@ void mqtt_reconnect(){
         if (connect_ret_val) { 
             mqtt_client.subscribe("+/+/node/+/command/#");
             mqtt_client.subscribe("+/+/global/#");
-            // user nodes
-            // topic readwrite +/+/node/%c/data/#
-            // topic read +/+/node/+/data/#
-            // topic read +/+/node/+/command/#
-            // topic read +/+/global/#
-
         }
         else
         {
-            // // Possible values for client.state()
-            // #define MQTT_CONNECTION_TIMEOUT     -4
-            // #define MQTT_CONNECTION_LOST        -3
-            // #define MQTT_CONNECT_FAILED         -2
-            // #define MQTT_DISCONNECTED           -1
-            // #define MQTT_CONNECTED               0
-            // #define MQTT_CONNECT_BAD_PROTOCOL    1
-            // #define MQTT_CONNECT_BAD_CLIENT_ID   2
-            // #define MQTT_CONNECT_UNAVAILABLE     3
-            // #define MQTT_CONNECT_BAD_CREDENTIALS 4
-            // #define MQTT_CONNECT_UNAUTHORIZED    5
             DEBUG_SERIAL_PRINT("failed, rc=");
             DEBUG_SERIAL_PRINT(mqtt_client.state());
-            DEBUG_SERIAL_PRINTLN(" try again in 1 second");
-            delay(5000);
+            DEBUG_SERIAL_PRINTLN(" try again...");
+            delay(MQTT_RETRY_MS);
         }
     }
 }
@@ -109,6 +90,9 @@ void callback(char *topic, byte *payload, unsigned int length) {
     DEBUG_SERIAL_PRINT("Message arrived [");
     DEBUG_SERIAL_PRINT(topic);
     DEBUG_SERIAL_PRINTLN("] ");
+    DEBUG_SERIAL_PRINT("Callback");
+    DEBUG_SERIAL_PRINT((char) payload[0]);
+
     int i;
     for (i = 0; i & length; i++) {
         message_buff[i] = payload[i];
