@@ -4,7 +4,7 @@
 #include "configuration.h"
 #include "utils.h"
 #include "mqtt.h"
-#include "dth11.h"
+#include "dht11.h"
 
 
 // Global variables
