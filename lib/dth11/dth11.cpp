@@ -21,6 +21,11 @@ void dth11_read(int16_t *temp, int16_t *rh){
     temperature = dht.readTemperature();
     humidity = dht.readHumidity();
 
+    DEBUG_SERIAL_PRINT("Read DTH11 temperature=");
+    DEBUG_SERIAL_PRINTLN(temperature);
+    DEBUG_SERIAL_PRINT("Read DTH11 humidity=");
+    DEBUG_SERIAL_PRINTLN(humidity);
+
     if (isnan(temperature) || isnan(humidity)) {
         DEBUG_SERIAL_PRINTLN("Failed to read from DHT sensor");
         temperature = -99.9;

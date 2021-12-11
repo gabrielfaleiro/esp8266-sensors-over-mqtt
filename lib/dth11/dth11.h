@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Adafruit_Sensor.h>
+//#include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include "configuration.h"
 #include "utils.h"

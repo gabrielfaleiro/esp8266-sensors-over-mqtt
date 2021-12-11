@@ -32,8 +32,8 @@ bool publish_dth11(void *) {
 }
 
 
-void setup() {  
-  DEBUG_SERIAL_SETUP(115200);
+void setup() {
+  DEBUG_SERIAL_SETUP(9600);
   DEBUG_SERIAL_PRINTLN("Setting up device...");
 
   // Network setup
