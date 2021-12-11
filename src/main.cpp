@@ -10,10 +10,12 @@
 auto timer = timer_create_default();
 
 
-bool function_to_call(void *) {
+bool publish_temp(void *) {
 
-  char section[100] = "";
-  char payload[100] = "test_payload";
+  char section[100] = "temperature";
+  char payload[10] = "test";
+
+  // TODO: read value and update payload
 
   mqtt_publish_message(section, payload, false);
 
@@ -27,13 +29,14 @@ void setup() {
 
   // Network setup
   wifi_connect();
+  mqtt_reconnect();
 
   // PIN mode
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(LED_BUILTIN, HIGH);
 
   // Timer functions
-  timer.every(20000, function_to_call);
+  timer.every(60000, publish_temp);
 
   DEBUG_SERIAL_PRINTLN("Running main loop...");
 }
@@ -52,13 +55,5 @@ void loop() {
   }
   mqtt_reconnect();
   mqtt_loop();
-
-
-  // // Update LCD
-  // if (! (tick_counter % (tick_1s*5))){
-  //   // temp = az3166ReadTemperature();
-  //   // hum = az3166ReadHumidity();
-  //   // pres = az3166ReadPressure();
-  // }
   
 }

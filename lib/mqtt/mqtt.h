@@ -8,6 +8,9 @@
 #ifndef _MQTT_H_
 #define _MQTT_H_
 
+#define WIFI_RETRY_MS 5000
+#define MQTT_RETRY_MS 5000
+
 void wifi_connect();
 // void wifi_reconnect(); // TODO
 

@@ -2,7 +2,7 @@
 #ifndef _CONFIGURATION_
 #define _CONFIGURATION_
 
-#define DEVICE_NAME     "template"
+//#define DEVICE_NAME     "template"
 
 #define WIFI_SSID       "template"
 #define WIFI_PASS       "template"
@@ -16,5 +16,8 @@
 #define MQTT_CLIENT_ID  "template"
 #define MQTT_USER       "template"
 #define MQTT_PASS       "template"
+
+#define MQTT_APP_NAME   "template"
+#define MQTT_APP_ID     "template"
 
 #endif
