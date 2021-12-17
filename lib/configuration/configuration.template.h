@@ -23,6 +23,7 @@
 #define MQTT_APP_ID         "template"
 
 #define DTH11_DATA_PIN      D0
-#define DTH11_SAMPLING_MS   60000
+#define DTH22_DATA_PIN      D1
+#define DTH_SAMPLING_MS     60000
 
 #endif
