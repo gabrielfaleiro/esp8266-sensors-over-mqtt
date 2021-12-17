@@ -4,6 +4,9 @@
 #ifndef _CONFIGURATION_
 #define _CONFIGURATION_
 
+// Uncomment to activate Serial debugging
+// #define DEBUG
+
 //#define DEVICE_NAME     "template"
 
 #define WIFI_SSID           "template"

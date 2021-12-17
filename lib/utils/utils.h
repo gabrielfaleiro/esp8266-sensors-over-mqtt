@@ -1,8 +1,6 @@
 
 #include <Arduino.h>
-
-// Uncomment to activate Serial debugging
-#define DEBUG
+#include "configuration.h"
 
 #ifndef _UTILS_
 #define _UTILS_
