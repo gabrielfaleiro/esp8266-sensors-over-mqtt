@@ -7,7 +7,7 @@
 // Uncomment to activate Serial debugging
 // #define DEBUG
 
-//#define DEVICE_NAME     "template"
+// #define DEVICE_NAME     "template"
 
 #define WIFI_SSID           "template"
 #define WIFI_PASS           "template"

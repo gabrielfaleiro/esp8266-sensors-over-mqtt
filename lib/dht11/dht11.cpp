@@ -26,6 +26,6 @@ void dht11_read(int16_t *temp, int16_t *rh){
         humidity = -1.0;
     }
 
-    *temp = (int16_t) temperature * 10;
-    *rh = (int16_t) humidity * 10;
+    *temp = (int16_t) (temperature * 10);
+    *rh = (int16_t) (humidity * 10);
 }
