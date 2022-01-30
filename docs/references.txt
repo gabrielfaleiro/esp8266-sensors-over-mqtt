@@ -6,3 +6,6 @@
   - ESP.restart();
 - Pinout: https://www.wemos.cc/en/latest/d1/d1_mini.html
 - Timers: https://www.arduino.cc/reference/en/libraries/arduino-timer/
+
+Reference:
+- https://tttapa.github.io/ESP8266/Chap01%20-%20ESP8266.html
